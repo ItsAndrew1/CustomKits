@@ -1,0 +1,16 @@
+#Developed by: _ItsAndrew_
+#This file is for managing all the messages
+
+prefix: "&f&l[&d&lCK&f&l]"
+no-permission: "&cYou don't have permission to run this command."
+no-args: "&cUsage: /kitconfig <create | delete | manage | reload | help>"
+no-kits-configured: "&cThere are no kits configured yet! Please contact the server administrators."
+
+#Configure the /kitconfig help message.
+help-message:
+  - "&d&l====[CUSTOMKITS HELP]====="
+  - "&f&l/kitconfig create <name> &a-> stores a kit in kits.yml"
+  - "&f&l/kitconfig delete <name> &a-> deletes a kit from kits.yml"
+  - "&f&l/kitconfig manage ... &a-> helps managing the kits"
+  - "&f&l/kitconfig reload &a-> reloads the plugin's files"
+  - "&f&l/kits &a-> opens the kits menu"

@@ -1,0 +1,21 @@
+name: CustomKits
+version: '1.0'
+main: org.andrew.customKits.CustomKits
+api-version: '1.21'
+author: _ItsAndrew_
+description: Create custom kits for your server!
+
+permissions:
+  kits.admin:
+    description: Gives access to different commands
+    default: op
+
+commands:
+  kitconfig:
+    permission: kits.admin
+    usage: /kitconfig <create | delete | manage | reload | help>
+    description: Handles the main configuration of the kits
+    aliases: [kc]
+  kits:
+    usage: /kits
+    description: Opens the kits GUI

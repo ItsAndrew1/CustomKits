@@ -1,0 +1,31 @@
+#Developed by: _ItsAndrew_
+#This file is the main configuration of the plugin
+
+#KITS GUI CONFIG
+gui-title: "Kits" #Use '&' for styles
+gui-rows: 6 #How many rows should the GUI have. !!!THE NUMBER MUST BE BETWEEN 1 AND 6. The GUI slots will be a multiple of 9 (1 row = 9 slots)
+exit-item: #This is for the exit button in the GUI
+  display-name: "&c&lEXIT" #The display name of the item, you can use styles
+  material: red_concrete
+  slot: 40
+  toggle: true #Whether you want this button or not (true/false)
+no-permission-kit-lore: "&c&lNO PERMISSION"
+player-already-got-kit: " &cYou already got a kit!"
+
+#D -> DAY
+#H -> HOUR
+#M -> MINUTE
+#S -> SECOND
+kits-cooldown: 1m #This is the main cooldown for all the kits. Format: 24h | 5m | 2d | 10s etc.
+kits-cooldown-forever: true #If you want to set the cooldown forever (true/false)
+
+#The players that have "kits.admin" permission will have 0 cooldown
+kits-cooldown-staff: false #Use true/false
+
+#Visit https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html for all the available sounds!
+#You will need to change the "_" into "."
+kits-sound: "ENTITY.PLAYER.LEVELUP" #This is the sound when the player runs /kits
+no-permission-sound: "ENTITY.VILLAGER.NO" #Sound when a player clicks on a kit and has no permission
+cooldown-sound: "BLOCK.NOTE_BLOCK.BASS" #Sound when a player clicks on a kit and has cooldown
+no-inventory-space-sound: "BLOCK.NOTE_BLOCK.BASS"
+got-kit-already: "ENTITY.VILLAGER.NO" #Sound if a player already has a kit (and if kits-cooldown-forever is true)

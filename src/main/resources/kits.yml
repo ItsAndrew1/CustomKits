@@ -1,0 +1,28 @@
+#Developed by: _ItsAndrew_
+#This file is for all the kits that you may create
+
+#EXAMPLE STRUCTURE
+#kits:
+#  kit1:
+#    gui-item: diamond_sword
+#    gui-slot: 45
+#    enchantglow: true/false (Adds the enchanting glow to the GUI kit item)
+#    title-style: &a (this is only for style, go to https://minecraft.fandom.com/wiki/Formatting_codes for all styles)
+#    permission: kits.vip
+#    lore: -> THIS IS THE ONLY THING THAT YOU CANNOT MODIFY FROM IN GAME
+#        - ...
+#        - ...
+#        ...
+#    items:
+#      iron_ingot:
+#        quantity: 10
+#        enchantments:
+#      iron_sword:
+#        quantity:1
+#        enchantments:
+#      ...
+#  kit2:
+#   ...
+
+#The items must have the name from the ADVANCED TOOLTIPS, F3 + H in minecraft to see them
+kits:
