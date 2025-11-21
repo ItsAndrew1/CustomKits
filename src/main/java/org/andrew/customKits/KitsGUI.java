@@ -17,6 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import javax.xml.stream.events.Namespace;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -54,7 +55,7 @@ public class KitsGUI implements Listener {
                 String kitTitle = ChatColor.translateAlternateColorCodes('&', kits.getString(kitPath+".title"));
                 String permission = kits.getString(kitPath+".permission");
                 int kitsSlot = kits.getInt(kitPath+".gui-slot");
-                boolean isGlowEnchant = kits.getBoolean(kitPath+".enchantglow");
+                String isGlowEnchant = kits.getString(kitPath+".enchantglow");
 
                 Material kitMaterial = Material.matchMaterial(kitItem.toUpperCase());
                 ItemStack item = new ItemStack(kitMaterial);
@@ -62,26 +63,45 @@ public class KitsGUI implements Listener {
 
                 if(player.hasPermission(permission)){
                     kitMeta.setDisplayName(kitTitle);
-                    if(isGlowEnchant){
+                    if(isGlowEnchant.equalsIgnoreCase("true")){
                         kitMeta.addEnchant(Enchantment.LURE, 1, true);
                         kitMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                    }
+                    else{
+                        kitMeta.removeEnchant(Enchantment.LURE);
+                        kitMeta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
                     }
 
                     List<String> coloredLore = new ArrayList<>();
                     for(String loreLine : kits.getStringList(kitPath + ".lore")){
                         coloredLore.add(ChatColor.translateAlternateColorCodes('&', loreLine));
+                    }
+                    if(coloredLore.isEmpty()){
+                        coloredLore = Collections.emptyList();
                     }
                     kitMeta.setLore(coloredLore);
                 }
                 else{
                     kitMeta.setDisplayName(kitTitle);
+                    if(isGlowEnchant.equalsIgnoreCase("true")){
+                        kitMeta.addEnchant(Enchantment.LURE, 1, true);
+                        kitMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                    }
+                    else{
+                        kitMeta.removeEnchant(Enchantment.LURE);
+                        kitMeta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
+                    }
 
                     List<String> coloredLore = new ArrayList<>();
                     for(String loreLine : kits.getStringList(kitPath + ".lore")){
                         coloredLore.add(ChatColor.translateAlternateColorCodes('&', loreLine));
                     }
+                    if(coloredLore.isEmpty()){
+                        coloredLore = Collections.emptyList();
+                    }
+
                     coloredLore.add("");
-                    coloredLore.add(ChatColor.translateAlternateColorCodes('&', "&cNOPERMISSION!"));
+                    coloredLore.add(ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(plugin.getConfig().getString("no-permission-kit-lore"))));
                     kitMeta.setLore(coloredLore);
                 }
 

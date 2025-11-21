@@ -7,7 +7,7 @@
 #    gui-item: diamond_sword
 #    gui-slot: 45
 #    enchantglow: true/false (Adds the enchanting glow to the GUI kit item)
-#    title-style: &a (this is only for style, go to https://minecraft.fandom.com/wiki/Formatting_codes for all styles)
+#    title: &a
 #    permission: kits.vip
 #    lore: -> THIS IS THE ONLY THING THAT YOU CANNOT MODIFY FROM IN GAME
 #        - ...
