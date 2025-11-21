@@ -48,7 +48,7 @@ Contains ***general settings*** for the plugin (setting the cooldown, configurin
 
 ### `kits.yml`
 Contains every kit that you may create
-<img width="1026" height="817" alt="kitsSS" src="https://github.com/user-attachments/assets/6dd5f6e7-19f0-4f38-83ba-a21a9e6f4565" />
+<img width="795" height="751" alt="kitsSS" src="https://github.com/user-attachments/assets/3d672132-e04c-46c5-be53-1b3c450698ea" />
 
 ### `messages.yml`
 Contains the settings for the ***custom chat prefix*** and other *important messages*
