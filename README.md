@@ -1,10 +1,11 @@
 ![CustomKitsBanner](https://github.com/user-attachments/assets/6ec6c283-8387-46ce-98ba-ccd1082be3d5)
 
-# CustomKits
-
 **CustomKits** is a fully customizable plugin designed to help server *owners/admins* easily *create* and *manage* any type of kits. 
 
 ---
+
+## ‼️ New release
+Check out **version 1.2** [here](https://github.com/ItsAndrew1/CustomKits/releases/tag/v1.2)!
 
 ## ⚙️Features
 - Customizable GUI
