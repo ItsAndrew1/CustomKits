@@ -5,6 +5,7 @@ import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -23,27 +24,34 @@ public class CommandManager implements CommandExecutor {
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args){
-        FileConfiguration messages = plugin.getMessages().getConfig();
         FileConfiguration kits = plugin.getKits().getConfig();
+        ConfigurationSection kitsSection = kits.getConfigurationSection("kits");
+
+        String chatPrefix = plugin.getConfig().getString("prefix");
         Player player = (Player) sender;
 
-        // /kitconfig (or /kc) command
+        //Sounds
+        Sound good = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.player.levelup"));
+        Sound invalid = Registry.SOUNDS.get(NamespacedKey.minecraft("entity.enderman.teleport"));
+
         if(command.getName().equalsIgnoreCase("kitconfig")) {
             if(!sender.hasPermission("kits.admin")){
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("no-permission")));
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("no-permission-message")));
+                player.playSound(player.getLocation(), invalid, 1f, 1f);
                 return true;
             }
 
             if(args.length == 0){
-                Bukkit.getLogger().info("[CK] Usage: /kitconfig <create | delete | list | manage | reload | help>");
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("no-args")));
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cUsage: /kitconfig <create | delete | help | reload | manage"));
+                player.playSound(player.getLocation(), invalid, 1f, 1f);
                 return true;
             }
 
             switch(args[0]){
                 case "create":
                     if(args.length < 2){
-                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cUsage: &c&l/kitconfig create <name>"));
+                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cUsage: &c&l/kitconfig create <name>"));
+                        player.playSound(player.getLocation(), invalid, 1f, 1f);
                         return true;
                     }
                     else{
@@ -56,21 +64,22 @@ public class CommandManager implements CommandExecutor {
                         kits.set("kits."+args[1]+".items", "");
                         plugin.getKits().saveConfig();
 
-                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &aKit &l"+args[1]+" &asaved to &lkits.yml&a!"));
-                        Bukkit.getLogger().info("[CK] Kit "+args[1]+" saved to kits.yml!");
+                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &aKit &l"+args[1]+" &asaved to &lkits.yml&a!"));
+                        player.playSound(player.getLocation(), good, 1f, 1.4f);
                     }
 
                     break;
 
                 case "delete":
-                    if(!kits.isConfigurationSection("kits")){
-                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cYou don't have any kits configured!"));
-                        Bukkit.getLogger().info("[CK] You don't have any kits configured.");
+                    //Checking if there are any kits configured
+                    if(kitsSection == null || kitsSection.getKeys(false).isEmpty()){
+                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cYou don't have any kits configured!"));
+                        player.playSound(player.getLocation(), invalid, 1f, 1f);
                         return true;
                     }
                     else if(args.length < 2){
-                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cUsage: &c&l/kitconfig delete <name>"));
-                        Bukkit.getLogger().info("[CK] Usage: /kitconfig delete <name>");
+                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cUsage: &c&l/kitconfig delete <name>"));
+                        player.playSound(player.getLocation(), invalid, 1f, 1f);
                         return true;
                     }
                     else{
@@ -79,58 +88,60 @@ public class CommandManager implements CommandExecutor {
                             kits.set("kits."+kitName, null);
                             plugin.getKits().saveConfig();
 
-                            Bukkit.getLogger().info("[CK] Kit "+kitName+" successfully deleted.");
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &aKit &l"+kitName+" &asuccessfully deleted."));
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &aKit &l"+kitName+" &asuccessfully deleted."));
+                            player.playSound(player.getLocation(), good, 1f, 1.4f);
                         }
                         else{
-                            Bukkit.getLogger().info("[CK] Kit "+kitName+" doesn't exist.");
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cKit &l"+kitName+" &cdoesn't exist."));
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cKit &l"+kitName+" &cdoesn't exist."));
+                            player.playSound(player.getLocation(), invalid, 1f, 1f);
                         }
                     }
                     break;
 
                 case "help":
-                    List<String> helpMessage = messages.getStringList("help-message");
+                    List<String> helpMessage = plugin.getConfig().getStringList("help-message");
                     for(String line : helpMessage){
                         String coloredLine = ChatColor.translateAlternateColorCodes('&', line);
                         sender.sendMessage(coloredLine);
-                        Bukkit.getLogger().info(line);
                     }
+                    player.playSound(player.getLocation(), good, 1f, 1.4f);
                     break;
 
                 case "reload":
                     plugin.getKits().reloadConfig();
-                    plugin.getMessages().reloadConfig();
                     plugin.reloadConfig();
 
-                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &aCustomKits reloaded successfully."));
-                    Bukkit.getLogger().info("[CK] CustomKits reloaded successfully.");
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &aCustomKits reloaded successfully."));
+                    player.playSound(player.getLocation(), good, 1f, 1.4f);
                     break;
 
                 case "manage":
-                    if(!kits.isConfigurationSection("kits")){
-                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cYou have no kits configured!"));
-                        Bukkit.getLogger().info("[CK] You don't have any kits configured!");
+                    //Checking if there are kits configured
+                    if(kitsSection == null || kitsSection.getKeys(false).isEmpty()){
+                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cYou have no kits configured!"));
+                        player.playSound(player.getLocation(), invalid, 1f, 1f);
                         return true;
                     }
                     if(args.length < 3){
-                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cUsage: &l/kitconfig manage <name> ..."));
-                        Bukkit.getLogger().info("[CK] Usage: /kitconfig manage <name> ...");
+                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cUsage: &l/kitconfig manage <name> ..."));
+                        player.playSound(player.getLocation(), invalid, 1f, 1f);
                         return true;
                     }
 
                     String kitName = args[1];
                     String path = "kits."+kitName;
                     if(!Objects.requireNonNull(kits.getConfigurationSection("kits").getKeys(false)).contains(kitName)){
-                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cKit &l"+kitName+" &cdoesn't exist!"));
-                        Bukkit.getLogger().info("[CK] Kit "+kitName+" doesn't exist!");
+                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cKit &l"+kitName+" &cdoesn't exist!"));
+                        player.playSound(player.getLocation(), invalid, 1f, 1f);
                         return true;
                     }
 
+                    ConfigurationSection kitItemsSection = kits.getConfigurationSection(path+".items");
                     switch(args[2]){
                         case "setperm":
                             if(args.length < 4){
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix")+" &cUsage: &l/kc manage ... setperm <perm>"));
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &cUsage: &l/kc manage ... setperm <perm>"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
 
@@ -139,20 +150,22 @@ public class CommandManager implements CommandExecutor {
                             kits.set(path+".permission", permissionName);
                             plugin.getKits().saveConfig();
 
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &aPermission &l" + permissionName + " &aadded to kit &l"+ kitName+"&a."));
-                            Bukkit.getLogger().info("[CK] Permission "+permissionName+" added to kit "+kitName+".");
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &aPermission &l" + permissionName + " &aadded to kit &l"+ kitName+"&a."));
+                            player.playSound(player.getLocation(), good, 1f, 1.4f);
                             break;
 
                         case "setguiitem":
                             if(args.length < 4){
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cUsage: &l/kc manage ... setguiitem <item>"));
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cUsage: &l/kc manage ... setguiitem <item>"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
 
                             String item = args[3];
                             Material materialToSet = Material.matchMaterial(item);
                             if(materialToSet == null){
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cItem &l"+item+" &cdoes not exist in the game!"));
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cItem &l"+item+" &cdoes not exist in the game!"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
 
@@ -160,13 +173,14 @@ public class CommandManager implements CommandExecutor {
                             kits.set(path + ".gui-item", item);
                             plugin.getKits().saveConfig();
 
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &aGUI Item saved successfully for kit &l"+kitName+"&a!"));
-                            Bukkit.getLogger().info("[CK] GUI Item &l"+item+" &asaved successfully for kit "+kitName+"!");
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+ " &aGUI Item saved successfully for kit &l"+kitName+"&a!"));
+                            player.playSound(player.getLocation(), good, 1f, 1.4f);
                             break;
 
                         case "setguislot":
                             if(args.length < 4){
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cUsage: &l/kc manage ... setguislot <item>"));
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cUsage: &l/kc manage ... setguislot <item>"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
 
@@ -174,43 +188,48 @@ public class CommandManager implements CommandExecutor {
                             try{
                                 slot = Integer.parseInt(args[3]);
                                 if(slot < 1 || slot > plugin.getInvSize()){
-                                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cThe slot must be between &l1 &cand &l"+plugin.getInvSize()+"&c!"));
+                                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cThe slot must be between &l1 &cand &l"+plugin.getInvSize()+"&c!"));
+                                    player.playSound(player.getLocation(), invalid, 1f, 1f);
                                     return true;
                                 }
                             }  catch (NumberFormatException e){
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cThe number is &linvalid &c!"));
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cThe number is &linvalid &c!"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
 
                             kits.set(path+".gui-slot", slot);
                             plugin.getKits().saveConfig();
 
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &aSaved slot &l"+slot+"&a for kit &l"+kitName+"&a!"));
-                            Bukkit.getLogger().info("[CK] Saved slot "+slot+" for kit "+kitName+"!");
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+ " &aSaved slot &l"+slot+"&a for kit &l"+kitName+"&a!"));
+                            player.playSound(player.getLocation(), good, 1f, 1.4f);
                             break;
 
                         case "setglowing":
                             if(args.length < 4){
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cUsage: &l/kc manage ... setglowing <true/false>"));
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cUsage: &l/kc manage ... setglowing <true/false>"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
 
                             String value = args[3].toLowerCase();
                             if(!value.equalsIgnoreCase("true") && !value.equalsIgnoreCase("false")){
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cThe value must be &ltrue/false&c!"));
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cThe value must be &ltrue/false&c!"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
 
                             kits.set("kits."+kitName+".enchantglow", value);
                             plugin.getKits().saveConfig();
 
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &aValue &l"+value+" &afor &lEnchantGlow &asaved for kit &l"+kitName+"&a!"));
-                            Bukkit.getLogger().info("[CK] Value "+value+" for EnchantGlow saved for kit "+kitName+"!");
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+ " &aValue &l"+value+" &afor &lEnchantGlow &asaved for kit &l"+kitName+"&a!"));
+                            player.playSound(player.getLocation(), good, 1f, 1.4f);
                             break;
 
                         case "settitle":
                             if(args.length < 4){
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cUsage: &l/kc manage ... settitle <title>"));
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cUsage: &l/kc manage ... settitle <title>"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
 
@@ -218,13 +237,14 @@ public class CommandManager implements CommandExecutor {
                             kits.set("kits."+kitName+".title", title);
                             plugin.getKits().saveConfig();
 
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix")+" &aTitle &r"+title+" &asaved for kit &l"+kitName+"&a!"));
-                            Bukkit.getLogger().info("[CK] Title "+title+" saved for kit "+kitName+"!");
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+" &aTitle &r"+title+" &asaved for kit &l"+kitName+"&a!"));
+                            player.playSound(player.getLocation(), good, 1f, 1.4f);
                             break;
 
                         case "additem":
                             if(args.length < 5){
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cUsage: &l/kitconfig manage ... additem <name> <q>"));
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cUsage: &l/kitconfig manage ... additem <name> <q>"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
                             String rawItem = args[3].toLowerCase();
@@ -234,18 +254,19 @@ public class CommandManager implements CommandExecutor {
                             try{
                                 quantity = Integer.parseInt(args[4]);
                                 if(quantity < 1){
-                                    Bukkit.getLogger().info("[CK] The quantity cannot be lower than 1!");
-                                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cThe quantity cannot be lower than 1!"));
+                                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cThe quantity cannot be lower than 1!"));
+                                    player.playSound(player.getLocation(), invalid, 1f, 1f);
                                     return true;
                                 }
                             } catch (NumberFormatException e){
-                                Bukkit.getLogger().info("[CK] The quantity must be a number!");
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cThe quantity must be a number!"));
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cThe quantity must be a number!"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
 
                             if(materialToAdd == null) {
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cItem &l" + rawItem + " &cdoes not exist in the game!"));
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cItem &l" + rawItem + " &cdoes not exist in the game!"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
                             String pathToAdd = path+".items."+rawItem+".quantity";
@@ -256,17 +277,20 @@ public class CommandManager implements CommandExecutor {
                             kits.set(pathToAdd3, rawItem);
                             plugin.getKits().saveConfig();
 
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &aItem &l"+rawItem+" &awith quantity &l"+quantity+" &aadded to kit &l"+kitName+"&a!"));
-                            Bukkit.getLogger().info("[CK] Item "+rawItem+" with quantity "+quantity+" added to kit "+kitName+"!");
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &aItem &l"+rawItem+" &awith quantity &l"+quantity+" &aadded to kit &l"+kitName+"&a!"));
+                            player.playSound(player.getLocation(), good, 1f, 1.4f);
                             break;
 
                         case "removeitem":
-                            if(!kits.isConfigurationSection("kits."+kitName+".items")){
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cYou have no items in kit &l"+kitName+"&c!"));
+                            //Check if there are any items in the kit
+                            if(kitItemsSection == null || kitItemsSection.getKeys(false).isEmpty()){
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cYou have no items in kit &l"+kitName+"&c!"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
                             if(args.length < 4){
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cUsage: &l/kitconfig manage ... removeitem <name"));
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cUsage: &l/kitconfig manage ... removeitem <name"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
 
@@ -275,30 +299,34 @@ public class CommandManager implements CommandExecutor {
                             String pathToDelete = "kits."+kitName+".items."+itemToDelete;
 
                             if(materialToDelete == null){
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cItem &l"+itemToDelete+" &cdoes not exist in the game!"));
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cItem &l"+itemToDelete+" &cdoes not exist in the game!"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
                             if(Objects.requireNonNull(kits.getConfigurationSection(path+".items").getKeys(false).contains(itemToDelete))){
                                 kits.set(pathToDelete, null);
                                 plugin.getKits().saveConfig();
 
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &aItem &l"+itemToDelete+" &adeleted from kit &l"+kitName+"&a!"));
-                                Bukkit.getLogger().info(("[CK] Item "+itemToDelete+" deleted from kit "+kitName+"!"));
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &aItem &l"+itemToDelete+" &adeleted from kit &l"+kitName+"&a!"));
+                                player.playSound(player.getLocation(), good, 1f, 1.4f);
                             }
                             else{
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cItem &l"+itemToDelete+" &cdoes not exist in kit &l"+kitName+"&c!"));
-                                Bukkit.getLogger().info("[CK] Item "+itemToDelete+" does not exist in kit "+kitName+"!");
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cItem &l"+itemToDelete+" &cdoes not exist in kit &l"+kitName+"&c!"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
+                                return true;
                             }
-
                             break;
 
                         case "addenchant":
-                            if(!kits.isConfigurationSection(path+".items")){
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cYou have no items in kit &l" + kitName+"&c!"));
+                            //Check if there are items in the kit
+                            if(kitItemsSection == null || kitItemsSection.getKeys(false).isEmpty()){
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cYou have no items in kit &l" + kitName+"&c!"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
                             if(args.length < 6){
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cUsage: &l/kc manage <kit> addenchant <item> <enchant> <q>"));
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cUsage: &l/kc manage <kit> addenchant <item> <enchant> <q>"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
 
@@ -307,7 +335,8 @@ public class CommandManager implements CommandExecutor {
                                 String enchantment = args[4].toUpperCase(); //Example: Sharpness, Mending, Unbreaking etc.
                                 Enchantment enchant = Enchantment.getByName(enchantment);
                                 if(enchant == null){
-                                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cEnchant &l"+enchantment+" &cdoes not exist!"));
+                                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cEnchant &l"+enchantment+" &cdoes not exist!"));
+                                    player.playSound(player.getLocation(), invalid, 1f, 1f);
                                     return true;
                                 }
 
@@ -317,7 +346,8 @@ public class CommandManager implements CommandExecutor {
                                     enchantLevel = Integer.parseInt(args[5]);
 
                                     if(enchantLevel < 0){
-                                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cThe level must be at least &l0&c!"));
+                                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cThe level must be at least &l0&c!"));
+                                        player.playSound(player.getLocation(), invalid, 1f, 1f);
                                         return true;
                                     }
 
@@ -325,38 +355,45 @@ public class CommandManager implements CommandExecutor {
                                         kits.set(pathToAddEnchant, enchantLevel);
                                         plugin.getKits().saveConfig();
 
-                                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &aEnchantment &l"+enchant.getKey().getKey()+" &aadded to item &l"+itemToAddEnchant+"&a!"));
+                                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &aEnchantment &l"+enchant.getKey().getKey()+" &aadded to item &l"+itemToAddEnchant+"&a!"));
+                                        player.playSound(player.getLocation(), good, 1f, 1.4f);
                                         return true;
                                     }
                                     else if(enchantLevel < enchant.getStartLevel() || enchantLevel > enchant.getMaxLevel()){
-                                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cThe level for enchant &l"+enchant.getKey().getKey()+" &cmust be between &l"+enchant.getStartLevel()+" &cand &l"+enchant.getMaxLevel()+"&c!"));
+                                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cThe level for enchant &l"+enchant.getKey().getKey()+" &cmust be between &l"+enchant.getStartLevel()+" &cand &l"+enchant.getMaxLevel()+"&c!"));
+                                        player.playSound(player.getLocation(), invalid, 1f, 1f);
                                         return true;
                                     }
                                 }catch (NumberFormatException e){
-                                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cThe level must be a number!"));
+                                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cThe level must be a number!"));
+                                    player.playSound(player.getLocation(), invalid, 1f, 1f);
                                     return true;
                                 }
 
                                 kits.set(pathToAddEnchant, enchantLevel);
                                 plugin.getKits().saveConfig();
 
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &aEnchantment &l"+enchant.getKey().getKey()+" &aadded to item &l"+itemToAddEnchant+"&a!"));
-                                Bukkit.getLogger().info("[CK] Enchantment "+enchant.getKey().getKey()+" added to item "+itemToAddEnchant+"!");
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &aEnchantment &l"+enchant.getKey().getKey()+" &aadded to item &l"+itemToAddEnchant+"&a!"));
+                                player.playSound(player.getLocation(), good, 1f, 1.4f);
                             }
                             else{
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cItem &l"+itemToAddEnchant+" &cdoes not exist in kit &l"+kitName+"&c!"));
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cItem &l"+itemToAddEnchant+" &cdoes not exist in kit &l"+kitName+"&c!"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
 
                             break;
 
                         case "removeenchant":
-                            if(!kits.isConfigurationSection(path+".items")){
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cYou have no items in kit &l"+kitName+"&c!"));
+                            //Check if there are items in the kit
+                            if(kitItemsSection == null || kitItemsSection.getKeys(false).isEmpty()){
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cYou have no items in kit &l"+kitName+"&c!"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
                             if(args.length < 5){
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cUsage: &l/kc manage <kit> removeenchant <item> <enchant>"));
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cUsage: &l/kc manage <kit> removeenchant <item> <enchant>"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
 
@@ -368,33 +405,34 @@ public class CommandManager implements CommandExecutor {
                                     kits.set(path+".items."+itemToRemoveEnchant+".enchantments."+enchantToDelete, null);
                                     plugin.getKits().saveConfig();
 
-                                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &aEnchant &l"+enchantToDelete+" &aremoved from item &l"+itemToRemoveEnchant+"&a!"));
-                                    Bukkit.getLogger().info("[CK] Enchant "+enchantToDelete+" removed from item "+itemToRemoveEnchant+"!");
+                                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &aEnchant &l"+enchantToDelete+" &aremoved from item &l"+itemToRemoveEnchant+"&a!"));
+                                    player.playSound(player.getLocation(), good, 1f, 1.4f);
                                 }
                                 else{
-                                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cEnchant &l"+enchantToDelete+" &cdoes not exist for the item &l"+itemToRemoveEnchant));
+                                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cEnchant &l"+enchantToDelete+" &cdoes not exist for the item &l"+itemToRemoveEnchant));
+                                    player.playSound(player.getLocation(), invalid, 1f, 1f);
                                     return true;
                                 }
                             }
                             else{
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cItem &l"+itemToRemoveEnchant+" &cdoes not exist in kit &l"+kitName+"&c!"));
+                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cItem &l"+itemToRemoveEnchant+" &cdoes not exist in kit &l"+kitName+"&c!"));
+                                player.playSound(player.getLocation(), invalid, 1f, 1f);
                                 return true;
                             }
                             break;
 
                         default:
-                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cUnkown command. Use &l/kitconfighelp &cfor info."));
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cUnkown command. Use &l/kitconfighelp &cfor info."));
+                            player.playSound(player.getLocation(), invalid, 1f, 1f);
                             break;
                     }
-
                     break;
 
                 default:
-                    Bukkit.getLogger().info("[CK] Unknown command. Use /kitconfig help for info.");
-                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', messages.getString("prefix") + " &cUnkown command. Use &l/kitconfighelp &cfor info."));
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix + " &cUnkown command. Use &l/kitconfighelp &cfor info."));
+                    player.playSound(player.getLocation(), invalid, 1f, 1f);
                     break;
             }
-
             return true;
         }
 

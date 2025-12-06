@@ -6,11 +6,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class CustomKits extends JavaPlugin {
     private YMLfiles kits;
-    private YMLfiles messages;
     private YMLfiles playerData;
     private int invSize;
-    KitsGUI GuiManager;
-    CooldownManager CooldownManager;
+    private KitsGUI GuiManager;
+    private CooldownManager CooldownManager;
+    private GivingKitsTask giveKitsTask;
 
     @Override
     public void onEnable() {
@@ -18,12 +18,12 @@ public final class CustomKits extends JavaPlugin {
 
         //Creating the YML files
         kits = new YMLfiles(this, "kits.yml");
-        messages = new YMLfiles(this, "messages.yml");
         playerData = new YMLfiles(this, "playerdata.yml");
 
         invSize = getConfig().getInt("gui-rows") * 9;
         GuiManager = new KitsGUI(this);
         CooldownManager = new CooldownManager(this);
+        giveKitsTask = new GivingKitsTask(this);
 
         //Setting up the commands and the tab completer
         getCommand("kitconfig").setExecutor(new CommandManager(this));
@@ -31,15 +31,15 @@ public final class CustomKits extends JavaPlugin {
         getCommand("kits").setExecutor(new CommandManager(this));
 
         //Setting up the GUI events
-        getServer().getPluginManager().registerEvents(new KitsGUI(this), this);
+        getServer().getPluginManager().registerEvents(GuiManager, this);
 
         //Check any errors from the .yml files
         if(getConfig().getInt("gui-rows") < 1 || getConfig().getInt("gui-rows") > 6){
-            Bukkit.getLogger().warning("[CK] ERROR! gui-rows IN CONFIG.YML is INVALID!");
+            Bukkit.getLogger().warning("[CUSTOMKITS] ERROR! gui-rows IN CONFIG.YML is INVALID!");
         }
         if(getConfig().getBoolean("exit.item-toggle")){
             if(getConfig().getInt("exit-item.slot") < 1 || getConfig().getInt("exit-item.slot") > invSize){
-                Bukkit.getLogger().warning("[CK] The slot of exit-item is invalid!");
+                Bukkit.getLogger().warning("[CUSTOMKITS] The slot of exit-item is invalid!");
             }
         }
     }
@@ -48,19 +48,15 @@ public final class CustomKits extends JavaPlugin {
     public void onDisable() {
         //Saving each config file
         getKits().saveConfig();
-        getMessages().saveConfig();
         getPlayerData().saveConfig();
         saveConfig();
 
-        Bukkit.getLogger().info("[CK] CustomKits shut down successfully!");
+        Bukkit.getLogger().info("[CUSTOMKITS] CustomKits shut down successfully!");
     }
 
     //Getters
     public YMLfiles getKits(){
         return kits;
-    }
-    public YMLfiles getMessages(){
-        return messages;
     }
     public YMLfiles getPlayerData(){
         return playerData;
@@ -70,6 +66,9 @@ public final class CustomKits extends JavaPlugin {
     }
     public CooldownManager getCooldownManager(){
         return CooldownManager;
+    }
+    public GivingKitsTask getGiveKitsTask(){
+        return giveKitsTask;
     }
     public int getInvSize(){
         return invSize;

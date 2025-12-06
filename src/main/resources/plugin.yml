@@ -1,5 +1,5 @@
 name: CustomKits
-version: '1.1'
+version: '1.2'
 main: org.andrew.customKits.CustomKits
 api-version: '1.21'
 author: _ItsAndrew_

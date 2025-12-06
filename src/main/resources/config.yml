@@ -1,31 +1,85 @@
 #Developed by: _ItsAndrew_
 #This file is the main configuration of the plugin
 
+prefix: "&f&l[&d&lCK&f&l]" #This is the prefix that appears after a message in chat
+
 #KITS GUI CONFIG
 gui-title: "Kits" #Use '&' for styles
 gui-rows: 6 #How many rows should the GUI have. !!!THE NUMBER MUST BE BETWEEN 1 AND 6. The GUI slots will be a multiple of 9 (1 row = 9 slots)
+
 exit-item: #This is for the exit button in the GUI
   display-name: "&c&lEXIT" #The display name of the item, you can use styles
   material: red_concrete
   slot: 40
   toggle: true #Whether you want this button or not (true/false)
-no-permission-kit-lore: "&c&lNO PERMISSION"
-player-already-got-kit: " &cYou already got a kit!"
 
-#D -> DAY
-#H -> HOUR
-#M -> MINUTE
-#S -> SECOND
-kits-cooldown: 1m #This is the main cooldown for all the kits. Format: 24h | 5m | 2d | 10s etc.
+toggle-decorations: true #Whether you want these decorations or not (true/false)
+decoration-item:
+  material: black_stained_glass_pane #This is the item that will be used as decoration
+  display-name: " " #This is the item's display name
+
+info-item: #This is an item displayed at the top of the GUI.
+  toggle: true #Whether you want this item or not (true/false)
+  material: oak_sign #The material of the info item
+  display-name: "&fChoose a &lkit &fto get!" #Use '&' for styles.
+  lore: #Add lore to the item. Leave blank for none. Use '&' for styles.
+     -
+
+kits-cooldown: 1m #This is the main cooldown for all the kits. Format: 24h | 5m | 2d | 10s etc. (d->days, h->hours, m->minutes, s->seconds)
 kits-cooldown-forever: true #If you want to set the cooldown forever (true/false)
 
 #The players that have "kits.admin" permission will have 0 cooldown
 kits-cooldown-staff: false #Use true/false
 
-#Visit https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html for all the available sounds!
-#You will need to change the "_" into "."
-kits-sound: "ENTITY.PLAYER.LEVELUP" #This is the sound when the player runs /kits
+#Configure all the SOUNDS for CustomKits
+#TIP: run /playsound in minecraft to see the sound's name and HEAR it!
+kits-sound: "ENTITY.EXPERIENCE_ORB.PICKUP" #This is the sound when the player runs /kits
+ks-volume: 1
+ks-pitch: 1.1
+
 no-permission-sound: "ENTITY.VILLAGER.NO" #Sound when a player clicks on a kit and has no permission
+nps-volume: 1
+nps-pitch: 1
+
+player-get-kit-sound: "ENTITY.PLAYER.LEVELUP" #Sound when a player gets a kit
+pgks-volume: 1
+pgks-pitch: 1.4
+
 cooldown-sound: "BLOCK.NOTE_BLOCK.BASS" #Sound when a player clicks on a kit and has cooldown
-no-inventory-space-sound: "BLOCK.NOTE_BLOCK.BASS"
-got-kit-already: "ENTITY.VILLAGER.NO" #Sound if a player already has a kit (and if kits-cooldown-forever is true)
+cs-volume: 1
+cs-pitch: 1
+
+no-inventory-space-sound: "BLOCK.NOTE_BLOCK.BASS" #Sound when the player doesn't have inv space to claim the kit
+niss-volume: 1
+niss-pitch: 1
+
+got-kit-already: "ENTITY.ENDERMAN.TELEPORT" #Sound if a player already has a kit (if kits-cooldown-forever is true)
+gka-volume: 1
+gka-pitch: 1
+
+kits-command-error-sound: "ENTITY.VILLAGER.NO" #Sound if a player runs /kits and there is an error
+kces-volume: 1
+kces-pitch: 1
+
+no-kits-configured-sound: "ENTITY.ENDERMAN.TELEPORT" #Sound if a player runs /kits and there are no kits configured
+nkcs-volume: 1
+nkcs-pitch: 1
+
+exit-item-sound: "UI.BUTTON.CLICK" #Sound when a player clicks on exit item in Kits GUI
+eis-volume: 1
+eis-pitch: 1
+
+#Configure other important chat messages
+no-permission-command-message: "&cYou don't have permission to run this command."
+error-message: "&cContact the server administrators about this!"
+no-kits-configured: "&cThere are no configured kits yet. Please contact the server administrators."
+player-already-got-kit: "&cYou already got a kit!"
+
+#Configure the /kitconfig help message. Helpful for other staff
+help-message:
+  - "&d&l====[CUSTOMKITS HELP]====="
+  - "&f&l/kitconfig create <name> &a-> stores a kit in kits.yml"
+  - "&f&l/kitconfig delete <name> &a-> deletes a kit from kits.yml"
+  - "&f&l/kitconfig manage ... &a-> helps managing the kits"
+  - "&f&l/kitconfig reload &a-> reloads the plugin's files"
+  - "&f&l/kits &a-> opens the kits menu"
