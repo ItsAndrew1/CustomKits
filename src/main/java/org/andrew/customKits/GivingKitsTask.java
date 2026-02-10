@@ -16,7 +16,7 @@ public class GivingKitsTask {
         this.plugin = plugin;
     }
 
-    public void giveKit(Player player, ItemStack clickedKit){
+    public void giveKit(Player player, String displayName){
         FileConfiguration kits = plugin.getKits().getConfig();
         FileConfiguration playerData = plugin.getPlayerData().getConfig();
         boolean isCooldownForeverOption = plugin.getConfig().getBoolean("kits-cooldown-forever");
@@ -39,29 +39,28 @@ public class GivingKitsTask {
             }
         }
 
-        //Check whether the player has permission
-        Material clickedMaterial = clickedKit.getType();
+        //Checks if kits-cooldown-forever is true and if the player already got a kit
+        if(isCooldownForeverOption){
+            if(gotKitAlready){
+                String soundName = plugin.getConfig().getString("got-kit-already");
+                NamespacedKey soundInGame = NamespacedKey.minecraft(soundName.toLowerCase());
+                Sound playerGotKitAlready = Registry.SOUNDS.get(soundInGame);
+                player.playSound(player.getLocation(), playerGotKitAlready, 1f, 1f);
+
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("player-already-got-kit")));
+                player.closeInventory();
+                return;
+            }
+        }
+
+        //Looping through the kits and giving the kit that matches the display name
         for(String kit : kits.getConfigurationSection("kits").getKeys(false)){
-            Material kitMaterial = Material.valueOf(kits.getString("kits."+kit+".gui-item").toUpperCase());
-            if(clickedMaterial == kitMaterial){
+            String kitDisplayName = plugin.getConfig().getString("kits."+kit+".title");
+            if(kitDisplayName.equalsIgnoreCase(displayName)){
                 String permission = kits.getString("kits."+kit+".permission");
 
-                //Checks if kits-cooldown-forever is true and if the player already got a kit
-                if(isCooldownForeverOption){
-                    if(gotKitAlready){
-                        String soundName = plugin.getConfig().getString("got-kit-already");
-                        NamespacedKey soundInGame = NamespacedKey.minecraft(soundName.toLowerCase());
-                        Sound playerGotKitAlready = Registry.SOUNDS.get(soundInGame);
-                        player.playSound(player.getLocation(), playerGotKitAlready, 1f, 1f);
-
-                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("player-already-got-kit")));
-                        player.closeInventory();
-                        return;
-                    }
-                }
-
                 //Check for permission
-                if(player.hasPermission(permission)){
+                if(plugin.getPermissions().playerHas(player, permission)){
                     for(String item : kits.getConfigurationSection("kits."+kit+".items").getKeys(false)){
                         int itemQuantity = kits.getInt("kits."+kit+".items."+item+".quantity");
                         String itemMaterial = kits.getString("kits."+kit+".items."+item+".material");

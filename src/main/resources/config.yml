@@ -75,6 +75,12 @@ error-message: "&cContact the server administrators about this!"
 no-kits-configured: "&cThere are no configured kits yet. Please contact the server administrators."
 player-already-got-kit: "&cYou already got a kit!"
 
+#Set the 'No Permission' message/lore. You can use '&' for styles.
+#For the permissions to work, you will need 2 plugins: 'Vault' and another one for permissions (e.g: LuckPerms)
+#If you use LuckPerms, you can do '/lp group <group> permission set <permission> true' to add a custom permission to the group!
+no-permission-message: "&cYou don't have permission to get this kit!"
+no-permission-lore: "&c&lNO PERMISSION" #This will show up down in the lore of the kit item
+
 #Configure the /kitconfig help message. Helpful for other staff
 help-message:
   - "&d&l====[CUSTOMKITS HELP]====="

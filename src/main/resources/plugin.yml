@@ -4,6 +4,8 @@ main: org.andrew.customKits.CustomKits
 api-version: '1.21'
 author: _ItsAndrew_
 description: Create custom kits for your server!
+softdepend:
+  - Vault
 
 permissions:
   kits.admin:

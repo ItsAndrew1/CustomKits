@@ -1,7 +1,9 @@
 //Developed by: _ItsAndrew_
 package org.andrew.customKits;
 
+import net.milkbowl.vault.permission.Permission;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class CustomKits extends JavaPlugin {
@@ -11,6 +13,9 @@ public final class CustomKits extends JavaPlugin {
     private KitsGUI GuiManager;
     private CooldownManager CooldownManager;
     private GivingKitsTask giveKitsTask;
+
+    //Defining the permission object
+    private static Permission permissions;
 
     @Override
     public void onEnable() {
@@ -42,6 +47,9 @@ public final class CustomKits extends JavaPlugin {
                 Bukkit.getLogger().warning("[CUSTOMKITS] The slot of exit-item is invalid!");
             }
         }
+
+        //Sets the permission
+        setupPermissions();
     }
 
     @Override
@@ -52,6 +60,21 @@ public final class CustomKits extends JavaPlugin {
         saveConfig();
 
         Bukkit.getLogger().info("[CUSTOMKITS] CustomKits shut down successfully!");
+    }
+
+    private void setupPermissions(){
+        if(getServer().getPluginManager().getPlugin("Vault") != null){
+            getLogger().warning("[CUSTOMKITS] Vault plugin not detected. The permissions won't work normally!");
+            return;
+        }
+
+        RegisteredServiceProvider<Permission> permissionProvider = getServer().getServicesManager().getRegistration(Permission.class);
+        permissions = permissionProvider.getProvider();
+    }
+
+    //Getter for permissions object
+    public Permission getPermissions() {
+        return permissions;
     }
 
     //Getters

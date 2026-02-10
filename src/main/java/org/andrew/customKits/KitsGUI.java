@@ -117,58 +117,34 @@ public class KitsGUI implements Listener {
                 String kitTitle = ChatColor.translateAlternateColorCodes('&', kits.getString(kitPath+".title"));
                 String permission = kits.getString(kitPath+".permission");
                 int kitsSlot = kits.getInt(kitPath+".gui-slot");
-                String isGlowEnchant = kits.getString(kitPath+".enchantglow");
+                boolean isGlowEnchant = kits.getBoolean(kitPath+".enchantglow", false);
 
                 Material kitMaterial = Material.matchMaterial(kitItem.toUpperCase());
                 ItemStack item = new ItemStack(kitMaterial);
                 ItemMeta kitMeta = item.getItemMeta();
 
-                if(player.hasPermission(permission)){
-                    kitMeta.setDisplayName(kitTitle);
-                    if(isGlowEnchant.equalsIgnoreCase("true")){
-                        kitMeta.addEnchant(Enchantment.LURE, 1, true);
-                        kitMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-                    }
-                    else{
-                        kitMeta.removeEnchant(Enchantment.LURE);
-                        kitMeta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
-                    }
+                //Displaying the kits in the GUI
+                //Setting the display name
+                kitMeta.setDisplayName(kitTitle);
 
-                    List<String> coloredLore = new ArrayList<>();
-                    for(String loreLine : kits.getStringList(kitPath + ".lore")){
-                        coloredLore.add(ChatColor.translateAlternateColorCodes('&', loreLine));
-                    }
-                    if(coloredLore.isEmpty()){
-                        coloredLore = Collections.emptyList();
-                    }
-                    kitMeta.setLore(coloredLore);
+                //Setting the enchant glint if it is toggled for the kit
+                if(isGlowEnchant){
+                    kitMeta.addEnchant(Enchantment.LURE, 1, true);
+                    kitMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                 }
-                else{
-                    kitMeta.setDisplayName(kitTitle);
-                    if(isGlowEnchant.equalsIgnoreCase("true")){
-                        kitMeta.addEnchant(Enchantment.LURE, 1, true);
-                        kitMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-                    }
-                    else{
-                        kitMeta.removeEnchant(Enchantment.LURE);
-                        kitMeta.removeItemFlags(ItemFlag.HIDE_ENCHANTS);
-                    }
 
-                    List<String> coloredLore = new ArrayList<>();
-                    for(String loreLine : kits.getStringList(kitPath + ".lore")){
-                        coloredLore.add(ChatColor.translateAlternateColorCodes('&', loreLine));
-                    }
-                    if(coloredLore.isEmpty()){
-                        coloredLore = Collections.emptyList();
-                    }
-
-                    coloredLore.add("");
-                    coloredLore.add(ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(plugin.getConfig().getString("no-permission-kit-lore"))));
-                    kitMeta.setLore(coloredLore);
+                //Setting the lore
+                List<String> coloredLore = new ArrayList<>();
+                for(String loreLine : kits.getStringList(kitPath + ".lore")) coloredLore.add(ChatColor.translateAlternateColorCodes('&', loreLine));
+                if(!plugin.getPermissions().playerHas(player, permission)){
+                    String noPermLore = plugin.getConfig().getString("no-permission-lore");
+                    coloredLore.add(" ");
+                    coloredLore.add(noPermLore);
                 }
+                kitMeta.setLore(coloredLore);
 
                 item.setItemMeta(kitMeta);
-                kitsGUI.setItem(kitsSlot,item);
+                kitsGUI.setItem(kitsSlot, item);
             }
         } catch (Exception e){
             String errorMessage = plugin.getConfig().getString("error-message");
@@ -223,6 +199,6 @@ public class KitsGUI implements Listener {
         Material decoItemMat = Material.matchMaterial(plugin.getConfig().getString("decoration-item.material").toUpperCase());
         if(clicked.getType().equals(infoItemMat) || clicked.getType().equals(decoItemMat)) return;
 
-        plugin.getGiveKitsTask().giveKit(player, clicked); //Gives the kit to the player
+        plugin.getGiveKitsTask().giveKit(player, meta.getDisplayName()); //Gives the kit to the player
     }
 }
