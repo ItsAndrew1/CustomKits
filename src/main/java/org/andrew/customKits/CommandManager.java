@@ -219,7 +219,8 @@ public class CommandManager implements CommandExecutor {
                                 return true;
                             }
 
-                            kits.set("kits."+kitName+".enchantglow", value);
+                            boolean boolValue = Boolean.parseBoolean(value);
+                            kits.set("kits."+kitName+".enchantglow", boolValue);
                             plugin.getKits().saveConfig();
 
                             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', chatPrefix+ " &aValue &l"+value+" &afor &lEnchantGlow &asaved for kit &l"+kitName+"&a!"));

@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class KitsGUI implements Listener {
-    CustomKits plugin;
+    private final CustomKits plugin;
 
     public KitsGUI(CustomKits plugin){
         this.plugin = plugin;
@@ -137,7 +137,7 @@ public class KitsGUI implements Listener {
                 List<String> coloredLore = new ArrayList<>();
                 for(String loreLine : kits.getStringList(kitPath + ".lore")) coloredLore.add(ChatColor.translateAlternateColorCodes('&', loreLine));
                 if(!plugin.getPermissions().playerHas(player, permission)){
-                    String noPermLore = plugin.getConfig().getString("no-permission-lore");
+                    String noPermLore = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("no-permission-lore"));
                     coloredLore.add(" ");
                     coloredLore.add(noPermLore);
                 }
@@ -199,6 +199,7 @@ public class KitsGUI implements Listener {
         Material decoItemMat = Material.matchMaterial(plugin.getConfig().getString("decoration-item.material").toUpperCase());
         if(clicked.getType().equals(infoItemMat) || clicked.getType().equals(decoItemMat)) return;
 
+        player.sendMessage(meta.getDisplayName());
         plugin.getGiveKitsTask().giveKit(player, meta.getDisplayName()); //Gives the kit to the player
     }
 }

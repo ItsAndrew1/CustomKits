@@ -63,8 +63,8 @@ public final class CustomKits extends JavaPlugin {
     }
 
     private void setupPermissions(){
-        if(getServer().getPluginManager().getPlugin("Vault") != null){
-            getLogger().warning("[CUSTOMKITS] Vault plugin not detected. The permissions won't work normally!");
+        if(getServer().getPluginManager().getPlugin("Vault") == null){
+            getLogger().warning("Vault plugin not detected. The permissions won't work normally!");
             return;
         }
 

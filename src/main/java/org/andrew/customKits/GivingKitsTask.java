@@ -40,22 +40,22 @@ public class GivingKitsTask {
         }
 
         //Checks if kits-cooldown-forever is true and if the player already got a kit
-        if(isCooldownForeverOption){
-            if(gotKitAlready){
-                String soundName = plugin.getConfig().getString("got-kit-already");
-                NamespacedKey soundInGame = NamespacedKey.minecraft(soundName.toLowerCase());
-                Sound playerGotKitAlready = Registry.SOUNDS.get(soundInGame);
-                player.playSound(player.getLocation(), playerGotKitAlready, 1f, 1f);
+        if(isCooldownForeverOption && gotKitAlready){
+            String soundName = plugin.getConfig().getString("got-kit-already");
+            NamespacedKey soundInGame = NamespacedKey.minecraft(soundName.toLowerCase());
+            Sound playerGotKitAlready = Registry.SOUNDS.get(soundInGame);
+            player.playSound(player.getLocation(), playerGotKitAlready, 1f, 1f);
 
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("player-already-got-kit")));
-                player.closeInventory();
-                return;
-            }
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("player-already-got-kit")));
+            player.closeInventory();
+            return;
         }
 
         //Looping through the kits and giving the kit that matches the display name
         for(String kit : kits.getConfigurationSection("kits").getKeys(false)){
-            String kitDisplayName = plugin.getConfig().getString("kits."+kit+".title");
+            String kitDisplayName = kits.getString("kits."+kit+".title");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', kitDisplayName)); //Debugging
+
             if(kitDisplayName.equalsIgnoreCase(displayName)){
                 String permission = kits.getString("kits."+kit+".permission");
 
