@@ -69,6 +69,10 @@ exit-item-sound: "UI.BUTTON.CLICK" #Sound when a player clicks on exit item in K
 eis-volume: 1
 eis-pitch: 1
 
+kit-has-no-items-sound: "ENTITY.ENDERMAN.TELEPORT"
+khnis-volume: 1
+khnis-pitch: 1
+
 #Configure other important chat messages
 no-permission-command-message: "&cYou don't have permission to run this command."
 error-message: "&cContact the server administrators about this!"

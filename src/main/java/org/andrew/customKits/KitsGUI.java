@@ -13,6 +13,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -133,6 +134,9 @@ public class KitsGUI implements Listener {
                     kitMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                 }
 
+                //Setting an ID for each kit (handy for the GivingTask)
+                kitMeta.getPersistentDataContainer().set(new NamespacedKey(plugin, "kit-id"), PersistentDataType.STRING, key);
+
                 //Setting the lore
                 List<String> coloredLore = new ArrayList<>();
                 for(String loreLine : kits.getStringList(kitPath + ".lore")) coloredLore.add(ChatColor.translateAlternateColorCodes('&', loreLine));
@@ -172,8 +176,8 @@ public class KitsGUI implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
 
-        String guiTtile = plugin.getConfig().getString("gui-title");
-        if (!(event.getView().getTitle().equals(guiTtile))) return;
+        String guiTitle = plugin.getConfig().getString("gui-title");
+        if (!(event.getView().getTitle().equals(guiTitle))) return;
 
         event.setCancelled(true);
         ItemStack clicked = event.getCurrentItem();
@@ -199,7 +203,9 @@ public class KitsGUI implements Listener {
         Material decoItemMat = Material.matchMaterial(plugin.getConfig().getString("decoration-item.material").toUpperCase());
         if(clicked.getType().equals(infoItemMat) || clicked.getType().equals(decoItemMat)) return;
 
-        player.sendMessage(meta.getDisplayName());
-        plugin.getGiveKitsTask().giveKit(player, meta.getDisplayName()); //Gives the kit to the player
+        //Getting that custom-id
+        String kitId = meta.getPersistentDataContainer().get(new NamespacedKey(plugin, "kid-id"), PersistentDataType.STRING);
+
+        plugin.getGiveKitsTask().giveKit(player, kitId); //Gives the kit to the player
     }
 }
