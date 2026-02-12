@@ -5,7 +5,7 @@
 ---
 
 ## ‼️ New release
-Check out **version 1.2** [here](https://github.com/ItsAndrew1/CustomKits/releases/tag/v1.2)!
+Check out **version 1.2.1** [here](https://github.com/ItsAndrew1/CustomKits/releases/tag/v1.2.1)!
 
 ## ⚙️Features
 - Customizable GUI
