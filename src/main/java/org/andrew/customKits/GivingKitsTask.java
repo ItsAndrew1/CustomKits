@@ -69,7 +69,8 @@ public class GivingKitsTask {
             String soundName = plugin.getConfig().getString("kit-has-no-items-sound");
             float khnisVolume = plugin.getConfig().getInt("khnis-volume");
             float khnisPitch = plugin.getConfig().getInt("khnis-pitch");
-            player.playSound(player.getLocation(), Registry.SOUNDS.get(NamespacedKey.minecraft(soundName)), khnisVolume, khnisPitch);
+            Sound kitHasNoItemsSound = Registry.SOUNDS.get(NamespacedKey.minecraft(soundName.toLowerCase()));
+            player.playSound(player.getLocation(), kitHasNoItemsSound, khnisVolume, khnisPitch);
 
             player.closeInventory();
             Bukkit.getLogger().warning("[CUSTOMKITS] The kit " + kitID + " does not have any items!");

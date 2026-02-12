@@ -204,7 +204,7 @@ public class KitsGUI implements Listener {
         if(clicked.getType().equals(infoItemMat) || clicked.getType().equals(decoItemMat)) return;
 
         //Getting that custom-id
-        String kitId = meta.getPersistentDataContainer().get(new NamespacedKey(plugin, "kid-id"), PersistentDataType.STRING);
+        String kitId = meta.getPersistentDataContainer().get(new NamespacedKey(plugin, "kit-id"), PersistentDataType.STRING);
 
         plugin.getGiveKitsTask().giveKit(player, kitId); //Gives the kit to the player
     }

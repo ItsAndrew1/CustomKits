@@ -6,7 +6,7 @@
 
     <groupId>org.andrew</groupId>
     <artifactId>CustomKits</artifactId>
-    <version>1.2</version>
+    <version>1.2.1</version>
     <packaging>jar</packaging>
 
     <name>CustomKits</name>
